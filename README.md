@@ -8,15 +8,15 @@ A 4 KB chess engine for make.fun's "Build the strongest chess engine in 4 KB of 
 
 ## How it works
 
-The board is a 0x88 array of 128 squares, copied on every move instead of unmade, so the search never has to undo anything. Move generation walks the board once per node and scores captures by victim value, which keeps the ordering cheap and the node rate high.
+The board is a 0x88 array, copied on every move instead of unmade, so the search never undoes anything. Move generation walks the board once per node and scores captures by victim value.
 
-Search runs iterative deepening to a fixed budget of 100,000 nodes per move, with no clock anywhere, so the same position always produces the same move. Inside the search: alpha-beta with a quiescence search over captures, promotions and check evasions; a transposition table keyed on the board, side, castling rights and en passant square; null-move pruning once the position is developed enough; late-move reductions for quiet moves late in the ordering; and an extra ply when the side to move is in check.
+Search is iterative deepening to a fixed 100,000 nodes per move, with no clock, so the same position always gives the same move. Inside: alpha-beta, quiescence over captures, promotions and check evasions, a transposition table, null-move pruning, late-move reductions, and an extra ply in check.
 
-Evaluation is a tapered blend of midgame and endgame piece-square tables, decoded from a single letter string at import time. Material, square bonuses and game phase are tracked incrementally as pieces move, so scoring a position is a few arithmetic operations. There is no randomness, no opening book and no endgame tablebase in the engine itself; the book openings come from the match harness.
+Evaluation blends midgame and endgame piece-square tables, decoded from one letter string at import. Material, square bonuses and phase are tracked incrementally, so scoring is a few operations. No randomness, no book, no tablebase; openings come from the harness.
 
-Packing is the kit's own compressor: the readable source lives beside the entrypoint as `engine6_shrunk_min.py` and `makefun compress` turns it into the 3,280-byte `main.py` the grader runs. The source is the golfed form of a longer engine written during the build; nothing in it was copied from another entry.
+Packing uses the kit's own compressor: the readable source sits beside the entrypoint as `engine6_shrunk_min.py`, and `makefun compress` turns it into the 3,280-byte `main.py`. It is the golfed form of a longer engine written during the build.
 
-Local practice against the kit's own trial harness gave a mean Elo of 1,336 across three trials (1,279 / 1,451 / 1,279), above the 1,154 bar for the final and just under the sunfish baseline of about 1,365. Perft counts match the reference values on all six test positions, and the engine picks the same move twice from the same position at the full node budget.
+Local practice gave a mean Elo of 1,336 over three trials (1,279 / 1,451 / 1,279), above the 1,154 bar and just under the sunfish baseline of about 1,365. Perft matches on all six test positions, and the engine repeats its move from the same position.
 
 - The transposition table is a plain dictionary keyed on the position, so it grows with the search and is cleared for every new root move.
 - No move takes longer than the node budget allows: the slowest measured move at 100,000 nodes was 3.29 seconds, inside the 10-second limit.
