@@ -18,6 +18,12 @@ Packing is the kit's own compressor: the readable source lives beside the entryp
 
 Local practice against the kit's own trial harness gave a mean Elo of 1,336 across three trials (1,279 / 1,451 / 1,279), above the 1,154 bar for the final and just under the sunfish baseline of about 1,365. Perft counts match the reference values on all six test positions, and the engine picks the same move twice from the same position at the full node budget.
 
+- The transposition table is a plain dictionary keyed on the position, so it grows with the search and is cleared for every new root move.
+- No move takes longer than the node budget allows: the slowest measured move at 100,000 nodes was 3.29 seconds, inside the 10-second limit.
+- The engine makes no network calls of its own; the only HTTP traffic is the harness protocol to the match server.
+- Every game ends the same way twice: fixed nodes plus no clock means a trial is reproducible from the same openings.
+- The 100,000-node budget was raised from 75,000 after practice trials showed the extra depth was worth more than the features cut to fit the size cap.
+
 ## Run it
 
 The engine talks to the make.fun env at `MAKEFUN_ENV_URL` and exits when every game is over:
